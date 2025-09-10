@@ -1,0 +1,29 @@
+{
+  "name": "urlshortner",
+  "version": "1.0.0",
+  "description": "an url shortner will strong backend",
+  "license": "ISC",
+  "author": "Sarthak Shinde",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch index",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.23",
+    "@types/node": "^24.3.1",
+    "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.4"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.1.5",
+    "pg": "^8.16.3",
+    "zod": "^4.1.5"
+  }
+}
