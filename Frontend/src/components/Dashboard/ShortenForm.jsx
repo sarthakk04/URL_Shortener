@@ -22,7 +22,11 @@ const ShortenForm = ({ onUrlShortened }) => {
       setUrl('');
       setCustomCode('');
     } catch (err) {
-      setError(err.message || 'Failed to shorten URL. Please enter a valid URL or try a different custom alias.');
+      if (err.message.includes("You have already shortened this URL")) {
+        setError("You've already shortened this link. You can create another by providing a custom alias.");
+      } else {
+        setError(err.message || 'Failed to shorten URL. Please try again.');
+      }
       console.error(err);
     } finally {
       setIsLoading(false);

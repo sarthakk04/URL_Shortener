@@ -51,9 +51,13 @@ export const signup = (firstname, lastname, email, password) => {
   return apiRequest('/user/signup', 'POST', payload);
 };
 
+export const getUserProfile = () => {
+    return apiRequest('/user/me', 'GET');
+};
+
 export const shortenUrl = (url, code) => {
   const payload = { url };
-  if (code) {
+  if (code && code.trim() !== '') {
     payload.code = code;
   }
   return apiRequest('/shorten', 'POST', payload);

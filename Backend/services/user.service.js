@@ -17,3 +17,12 @@ export async function getUserByEmail(email) {
 
   return existingUser;
 }
+
+export async function getUserById(id) {
+    const [user] = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.id, id));
+    
+    return user;
+}

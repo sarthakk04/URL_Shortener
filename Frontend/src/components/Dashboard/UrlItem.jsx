@@ -13,12 +13,25 @@ const DeleteIcon = () => (
     </svg>
 );
 
+const RedirectIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+    </svg>
+);
+
+const CheckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+);
+
 
 const UrlItem = ({ url, onUrlDeleted }) => {
   const [isCopied, setIsCopied] = useState(false);
   const shortUrl = `${window.location.origin.replace('5173', '8000')}/${url.shortCode}`;
 
   const handleCopy = () => {
+    if (isCopied) return;
     navigator.clipboard.writeText(shortUrl);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
@@ -44,9 +57,12 @@ const UrlItem = ({ url, onUrlDeleted }) => {
         <p className="original-url">{url.target}</p>
       </div>
       <div className="url-actions">
-        <button className="action-button" onClick={handleCopy} title="Copy to clipboard">
-          {isCopied ? 'Copied!' : <CopyIcon />}
+        <button className={`action-button ${isCopied ? 'copied' : ''}`} onClick={handleCopy} title="Copy to clipboard">
+          {isCopied ? <CheckIcon /> : <CopyIcon />}
         </button>
+        <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="action-button" title="Visit link">
+            <RedirectIcon />
+        </a>
         <button className="action-button delete" onClick={handleDelete} title="Delete link">
           <DeleteIcon />
         </button>

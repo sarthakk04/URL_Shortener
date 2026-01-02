@@ -6,8 +6,9 @@ import {
   loginPostRequestBodySchema,
 } from "../validations/request.validation.js";
 import { hashPasswordWithSalt } from "../utils/hash.js";
-import { getUserByEmail } from "../services/user.service.js";
+import { getUserByEmail, getUserById } from "../services/user.service.js";
 import { createUserToken } from "../utils/token.js";
+import { ensureAuthenticated } from "../middlewares/auth.middleware.js";
 
 const userRouter = express.Router();
 
@@ -78,5 +79,18 @@ userRouter.post("/login", async (req, res) => {
 
   return res.json({ token });
 });
+
+userRouter.get("/me", ensureAuthenticated, async (req, res) => {
+    const user = await getUserById(req.user.id);
+
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
+
+    // Omit sensitive fields before sending the response
+    const { password, salt, ...safeUser } = user;
+    return res.json(safeUser);
+});
+
 
 export default userRouter;

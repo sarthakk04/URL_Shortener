@@ -18,26 +18,54 @@ urlRouter.post("/shorten", ensureAuthenticated, async function (req, res) {
   }
 
   const { url, code } = validationResult.data;
+
+  // Check if this user has already shortened this exact URL
+  if (!code) {
+    const [existingUrl] = await db
+      .select()
+      .from(urlsTable)
+      .where(and(eq(urlsTable.userId, req.user.id), eq(urlsTable.target, url)));
+
+    if (existingUrl) {
+      return res.status(409).json({
+        error: "You have already shortened this URL.",
+        existingUrl: {
+          id: existingUrl.id,
+          shortCode: existingUrl.shortCode,
+          target: existingUrl.target,
+        },
+      });
+    }
+  }
+
   const shortCode = code ?? nanoid(6);
 
-  const [result] = await db
-    .insert(urlsTable)
-    .values({
-      shortCode,
-      target: url,
-      userId: req.user.id,
-    })
-    .returning({
-      id: urlsTable.id,
-      shortCode: urlsTable.shortCode,
-      target: urlsTable.target,
-    });
+  try {
+    const [result] = await db
+      .insert(urlsTable)
+      .values({
+        shortCode,
+        target: url,
+        userId: req.user.id,
+      })
+      .returning({
+        id: urlsTable.id,
+        shortCode: urlsTable.shortCode,
+        target: urlsTable.target,
+      });
 
-  return res.status(201).json({
-    id: result.id,
-    shortCode: result.shortCode,
-    target: result.target,
-  });
+    return res.status(201).json(result);
+  } catch (e) {
+    // Handle unique constraint violation for custom codes
+    if (e.code === "23505" && e.constraint.includes("urls_code_unique")) {
+      return res
+        .status(409)
+        .json({ error: `The alias '${shortCode}' is already in use.` });
+    }
+    // For other unexpected database errors
+    console.error(e);
+    return res.status(500).json({ error: "An internal server error occurred." });
+  }
 });
 
 urlRouter.get("/codes", ensureAuthenticated, async function (req, res) {
@@ -56,7 +84,7 @@ urlRouter.delete("/:id", ensureAuthenticated, async function (req, res) {
     .delete(urlsTable)
     .where(and(eq(urlsTable.id, id), eq(urlsTable.userId, req.user.id)));
 
-  return res.status(200).json({ deleted: true });
+  return res.status(204).send();
 });
 
 urlRouter.get("/:shortCode", async function (req, res) {
