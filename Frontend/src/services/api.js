@@ -27,7 +27,7 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ error: 'An unknown error occurred' }));
-    const errorMessage = errorData.error || `Request failed with status ${response.status}`;
+    const errorMessage = errorData.error?.issues?.[0]?.message || errorData.error || `Request failed with status ${response.status}`;
     throw new Error(errorMessage);
   }
   
@@ -51,8 +51,12 @@ export const signup = (firstname, lastname, email, password) => {
   return apiRequest('/user/signup', 'POST', payload);
 };
 
-export const shortenUrl = (url) => {
-  return apiRequest('/shorten', 'POST', { url });
+export const shortenUrl = (url, code) => {
+  const payload = { url };
+  if (code) {
+    payload.code = code;
+  }
+  return apiRequest('/shorten', 'POST', payload);
 };
 
 export const getUrls = () => {
